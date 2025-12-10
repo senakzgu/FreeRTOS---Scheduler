@@ -1,16 +1,19 @@
-CC = gcc
-CFLAGS = -Wall
+hepsi: derle calistir
 
-all: sim
+derle: Scheduler Tasks Main
+	gcc ./lib/scheduler.o ./lib/task.o ./lib/main.o -o ./bin/program -pthread
 
-sim: src/main.o src/scheduler.o
-	$(CC) src/main.o src/scheduler.o -o sim
+Scheduler:
+	gcc -I "./include" -c ./src/scheduler.c -o ./lib/scheduler.o
 
-src/main.o: src/main.c src/scheduler.h
-	$(CC) $(CFLAGS) -c src/main.c -o src/main.o
+Tasks:
+	gcc -I "./include" -c ./src/task.c -o ./lib/task.o
 
-src/scheduler.o: src/scheduler.c src/scheduler.h
-	$(CC) $(CFLAGS) -c src/scheduler.c -o src/scheduler.o
+Main:
+	gcc -I "./include" -c ./src/main.c -o ./lib/main.o
+
+calistir:
+	./bin/program giris.txt
 
 clean:
-	rm -f src/*.o sim
+	rm -f ./lib/*.o ./bin/program
