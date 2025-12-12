@@ -1,19 +1,19 @@
-hepsi: derle calistir
+CC = gcc
+CFLAGS = -Wall
 
-derle: Scheduler Tasks Main
-	gcc ./lib/scheduler.o ./lib/task.o ./lib/main.o -o ./bin/program -pthread
+TARGET = freertos_sim.exe
 
-Scheduler:
-	gcc -I "./include" -c ./src/scheduler.c -o ./lib/scheduler.o
+all: $(TARGET)
 
-Tasks:
-	gcc -I "./include" -c ./src/task.c -o ./lib/task.o
+$(TARGET): src/main.o src/scheduler.o
+	$(CC) src/main.o src/scheduler.o -o $(TARGET)
 
-Main:
-	gcc -I "./include" -c ./src/main.c -o ./lib/main.o
+src/main.o: src/main.c src/scheduler.h
+	$(CC) $(CFLAGS) -c src/main.c -o src/main.o
 
-calistir:
-	./bin/program giris.txt
+src/scheduler.o: src/scheduler.c src/scheduler.h
+	$(CC) $(CFLAGS) -c src/scheduler.c -o src/scheduler.o
 
 clean:
-	rm -f ./lib/*.o ./bin/program
+	del /Q src\*.o 2>nul
+	del /Q $(TARGET) 2>nul

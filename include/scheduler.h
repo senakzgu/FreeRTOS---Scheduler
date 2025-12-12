@@ -1,14 +1,12 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <pthread.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #define MAX_TASKS 100
-#define NUM_QUEUES 4     
-#define QUANTUM_TIME 1   
+#define NUM_QUEUES 4
 
+// Görev durumları
 typedef enum {
     TASK_READY,
     TASK_RUNNING,
@@ -16,42 +14,47 @@ typedef enum {
     TASK_TERMINATED
 } TaskState;
 
+// Görev yapısı
 typedef struct {
-    int id;                 
-    int arrival_time;       
-    int priority;           
-    int burst_time;         
-    int remaining_time;     
-    TaskState state;        
-    
-    pthread_t thread;       
-    pthread_mutex_t mutex;  
-    pthread_cond_t cond;    
+    int id;
+    char name[16];
+
+    int arrival_time;
+    int priority;
+    int burst_time;
+    int remaining_time;
+
+    int run_time;            // CPU’da çalıştığı toplam süre
+    int start_time;          // Görev ilk kez CPU’ya alındığı an (TIMEOUT için)
+    int timed_out;           // Timeout ile mi bitti? 1 = evet
+    int total_life_time;     // (İstersen kullanırsın ama final kodda zorunlu değil)
+    int has_started;
+
+
+    char* color;
+    TaskState state;
 } Task;
 
+// Kuyruk yapısı
 typedef struct {
-    Task* tasks[MAX_TASKS]; 
-    int count;              
-    int front;              
-    int rear;               
+    Task* items[MAX_TASKS];
+    int front;
+    int rear;
+    int count;
 } TaskQueue;
 
-// Global Degiskenler
-extern TaskQueue queues[NUM_QUEUES]; 
+extern TaskQueue queues[NUM_QUEUES];
 extern Task* all_tasks[MAX_TASKS];
-extern int total_task_count;
-extern int current_time;
+extern int task_count;
 
-// Renk Kodlari (Terminal icin)
-#define RESET   "\033[0m"
-#define RED     "\033[31m"      // P0 (Real Time)
-#define YELLOW  "\033[33m"      // P1
-#define BLUE    "\033[34m"      // P2
-#define MAGENTA "\033[35m"      // P3
-#define GREEN   "\033[32m"      // Baslangic/Bitis
+// Fonksiyonlar
+void run_scheduler(const char* filename);
 
-void init_scheduler();
-void schedule_simulation(); 
-void* task_thread_function(void* arg);
+void init_queue(TaskQueue* q);
+void enqueue(TaskQueue* q, Task* t);
+Task* dequeue(TaskQueue* q);
+
+Task* create_task(int arrival, int priority, int burst);
+void print_simulation_summary(int total_time);
 
 #endif
